@@ -1,0 +1,54 @@
+# .gitlab-ci.yml
+stages:
+  - Build
+  - Unit and static tests
+  - Deploy
+  - API tests
+image: docker
+Build containers:
+  stage: Build
+  script:
+    - apk add --no-cache docker-compose
+    - cd src
+    - docker-compose build
+Build python project:
+  stage: Build
+  script:
+    - apk add --update --no-cache python3 && ln -sf python3 /usr/bin/python
+    - python3 -m ensurepip
+    - pip3 install --no-cache --upgrade pip setuptools
+    - apk add pytest
+    - pip3 install -e .
+Unit tests:
+  stage: Unit and static tests
+  script:
+    - apk add --update --no-cache python3 && ln -sf python3 /usr/bin/python
+    - python3 -m ensurepip
+    - pip3 install --no-cache --upgrade pip setuptools
+    - apk add pytest
+    - pip3 install -e .
+    - pytest ./tests/unit_tests
+Static tests:
+  stage: Unit and static tests
+  script:
+    - apk add --update --no-cache python3 && ln -sf python3 /usr/bin/python
+    - python3 -m ensurepip
+    - pip3 install --no-cache --upgrade pip setuptools
+    - pip3 install flake8
+    - pip3 install -e .
+    - flake8
+Deploy:
+  stage: Deploy
+  script:
+    - apk add --no-cache docker-compose
+    - cd src
+    - docker-compose up -d --force-recreate
+API tests:
+  stage: API tests
+  script:
+    - apk add --update --no-cache python3 && ln -sf python3 /usr/bin/python
+    - python3 -m ensurepip
+    - pip3 install --no-cache --upgrade pip setuptools
+    - apk add pytest
+    - pip3 install -e .
+    - pytest ./tests/api_tests

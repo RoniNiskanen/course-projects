@@ -1,0 +1,47 @@
+version: "3.8"
+services:
+  rabbitmq_broker:
+    image: rabbitmq:3-management
+    container_name: 'rabbitmq'
+    networks:
+      - default
+  orig:
+    build: ./ORIG
+    networks:
+      - default
+  imed:
+    build: ./IMED
+    networks:
+      - default
+  api:
+    build: ./API_GATEWAY
+    networks:
+      - default
+    ports:
+      - "8083:8083"
+    volumes:
+     - message_volume:/messages
+  obse:
+    build: ./OBSE
+    networks:
+      - default
+    volumes:
+     - message_volume:/messages
+  httpserv:
+    build: ./HTTPSERV
+    networks:
+      - default
+    volumes:
+      - message_volume:/messages
+    ports:
+     - "8080:8080"
+  monitoring:
+    build: ./MONITORING
+    networks:
+      - default
+    ports:
+      - "8085:8085"
+networks:
+  default:
+volumes:
+  message_volume:
